@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xml:lang="hu-HU" lang="hu-HU" xmlns="http://www.w3.org/1999/xhtml">
+<head lang="hu-HU">
+	<title>Családfám - Családtérkép</title>
+	<meta charset="UTF-8" />
+	<meta name ="viewport" content="width=device-width; height=device-height; initial-scale=1.0; minimum-scale=0.5; maximum-scale=10.0; user-scalable=yes" />
+	<meta name ="apple-mobile-web-app-capable" content="yes" />
+	<meta name="generator" content="Gramps 5.1.6 http://gramps-project.org/" />
+	<meta name="author" content="" />
+	<link href="../../../images/favicon2.ico" rel="shortcut icon" type="image/x-icon" />
+	<link href="../../../css/narrative-print.css" media="print" rel="stylesheet" type="text/css" />
+	<link href="../../../css/narrative-screen.css" media="screen" rel="stylesheet" type="text/css" />
+	<script>function navFunction() { var x = document.getElementById("dropmenu"); if (x.className === "nav") { x.className += " responsive"; } else { x.className = "nav"; } }</script>
+	<link href="../../../css/narrative-maps.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet" type="text/javascript" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" type="text/javascript"></script>
+	<script src="https://openlayers.org/en/v6.15.1/build/ol.js" type="text/javascript"></script>
+	<link href="https://openlayers.org/en/v6.15.1/css/ol.css" rel="stylesheet" type="text/css" />
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" type="text/javascript"></script>
+<script deter="deter" style="width =100%; height =100%;" type="text/javascript">
+
+  var marker_png = '../../../images/marker.png'
+
+
+  function initialize(){
+    var map;
+    var tracelife = [
+    [18.912680, 46.980650, 'Dunaújváros, Magyarország'],
+    [18.844606, 46.957531, 'Nagyvenyim, Táncsics Mihály utca 6/1., Nagyvenyim, Magyarország'],
+    [18.891791, 46.982861, 'Pálhalmai Agrospeciál Kft., Dunaújváros, Magyarország'],
+    [18.922389, 46.978896, 'Encorn Trade Kft., Dunaújváros, Magyarország'],
+    [18.944816, 46.983006, 'Dunaújvárosi Kemping, Dunaújváros, Magyarország']
+  ];;
+    var iconStyle = new ol.style.Style({
+      image: new ol.style.Icon(({
+        anchor: [0.2, 48],
+        anchorXUnits: 'fraction',
+        anchorYUnits: 'pixels',
+        opacity: 1.0,
+        src: marker_png
+      }))
+    });
+    var markerSource = new ol.source.Vector({
+    });
+    for (var i = 0; i < tracelife.length; i++) {
+      var loc = tracelife[i];
+      var iconFeature = new ol.Feature({
+       geometry: new ol.geom.Point(ol.proj.transform([loc[0], loc[1]],
+                                                     'EPSG:4326', 'EPSG:3857')),
+       name: loc[2],
+      });
+      iconFeature.setStyle(iconStyle);
+      markerSource.addFeature(iconFeature);
+    }
+    markerLayer = new ol.layer.Vector({
+      source: markerSource,
+      style: iconStyle
+    });
+    var centerCoord = new ol.proj.transform([18.89471100, 46.97026800], 'EPSG:4326', 'EPSG:3857');
+    map= new ol.Map({
+                 target: 'map_canvas',
+                 layers: [new ol.layer.Tile({ source: new ol.source.OSM() }),
+                          markerLayer],
+                 view: new ol.View({ center: centerCoord, zoom: 6 })
+                 });
+    var element = document.getElementById('popup');
+    var tooltip = new ol.Overlay({
+      element: element,
+      positioning: 'bottom-center',
+      stopEvent: false
+    });
+    map.addOverlay(tooltip);
+    var displayFeatureInfo = function(pixel) {
+      var feature = map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+        return feature;
+      });
+      var info = document.getElementById('popup');
+      if (feature) {
+        var geometry = feature.getGeometry();
+        var coord = geometry.getCoordinates();
+        tooltip.setPosition(coord);
+        $(element).siblings('.popover').css({ width: '250px' });
+        $(element).siblings('.popover').css({ background: '#aaa' });
+        $(info).popover({
+          'placement': 'auto',
+          'html': true,
+          'content': feature.get('name')
+        });
+        $(info).popover('show');
+      } else {
+        // TODO : some warning with firebug here
+        $(info).popover('destroy');
+        $('.popover').remove();
+      }
+    };
+    map.on('pointermove', function(evt) {
+      if (evt.dragging) {
+        return;
+      }
+      var pixel = map.getEventPixel(evt.originalEvent);
+      displayFeatureInfo(pixel);
+    });
+    map.on('click', function(evt) {
+      displayFeatureInfo(evt.pixel);
+    });
+  };
+
+</script>
+</head>
+<body id ="FamilyMap" onload ="initialize()">
+	<div id="outerwrapper">
+		<div id="header">
+			<a href="javascript:void(0);" class="navIcon" onclick="navFunction()">&#8801;</a>
+			<h1 id="SiteTitle">Családfám</h1>
+		</div>
+		<div class="wrappernav" id="nav" role="navigation">
+			<div class="container">
+				<ul class="nav" id="dropmenu">
+					<li><a href="../../../individuals.html" title="Személyek">Személyek</a></li>
+					<li><a href="../../../index.html" title="Vezetéknevek">Vezetéknevek</a></li>
+					<li><a href="../../../families.html" title="Családok">Családok</a></li>
+					<li><a href="../../../events.html" title="Események">Események</a></li>
+					<li><a href="../../../places.html" title="Helyek">Helyek</a></li>
+					<li><a href="../../../media.html" title="Média">Média</a></li>
+					<li><a href="../../../thumbnails.html" title="Bélyegképek">Bélyegképek</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="content" id="FamilyMapDetail">
+			<h3>Rinyu, Nóra követése</h3>
+			<p id="description">
+			Ez a térképoldal a személy és leszármazottainak összes eseményének/helyszínének helyét mutatja.  Ha az egérmutatót a jelölő fölé viszi, akkor a helyszín neve megjelenik.  A jelölők és a Hivatkozási lista dátum sorrendben jelenik meg (ha van bármilyen). A Hivatkozás részben a helyszín nevére kattintva a helyszín oldalára kerülünk.
+			</p>
+			<div id="map_canvas">
+			</div>
+			<div id="popup"></div>
+			<div class="subsection" id="references">
+				<h4>Hivatkozások</h4>
+				<table class="infolist">
+					<thead>
+						<tr>
+							<th class="ColumnDate">Dátum</th>
+							<th class="ColumnPlace">Helycím</th>
+							<th class="ColumnType">Eseménytípus</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="ColumnDate">1973-11-21</td>
+							<td class="ColumnPlace"><a href="../../../plc/4/8/f75fdede67a1311f00bcd42b784.html" title="Dunaújváros, Magyarország">Dunaújváros, Magyarország</a></td>
+							<td class="ColumnType">Születés</td>
+						</tr>
+						<tr>
+							<td class="ColumnDate"></td>
+							<td class="ColumnPlace"><a href="../../../plc/c/7/f75fe38a70573b256b10fd77d7c.html" title="Nagyvenyim, Táncsics Mihály utca 6/1., Nagyvenyim, Magyarország">Nagyvenyim, Táncsics Mihály utca 6/1., Nagyvenyim, Magyarország</a></td>
+							<td class="ColumnType">Lakóhely</td>
+						</tr>
+						<tr>
+							<td class="ColumnDate">1994-10-15 és 2022-09-00 között</td>
+							<td class="ColumnPlace"><a href="../../../plc/b/5/f75ff58265d26086341d071dd5b.html" title="Pálhalmai Agrospeciál Kft., Dunaújváros, Magyarország">Pálhalmai Agrospeciál Kft., Dunaújváros, Magyarország</a></td>
+							<td class="ColumnType">Munkahelye</td>
+						</tr>
+						<tr>
+							<td class="ColumnDate"></td>
+							<td class="ColumnPlace"><a href="../../../plc/1/1/f75ff7f9b385891cd3426461611.html" title="Encorn Trade Kft., Dunaújváros, Magyarország">Encorn Trade Kft., Dunaújváros, Magyarország</a></td>
+							<td class="ColumnType">Munkahelye</td>
+						</tr>
+						<tr>
+							<td class="ColumnDate">2023-11-18</td>
+							<td class="ColumnPlace"><a href="../../../plc/e/1/f76fcf6e97c5172dfcb24d4a71e.html" title="Dunaújvárosi Kemping, Dunaújváros, Magyarország">Dunaújvárosi Kemping, Dunaújváros, Magyarország</a></td>
+							<td class="ColumnType">Születésnap</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="fullclear"></div>
+		<div id="footer">
+			<p id="createdate">
+			Készült a <a href="http://gramps-project.org/">GRAMPS</a> 5.1.6-al 2023-12-24-én(án)
+			</p>
+			<p id="copyright">
+			
+			</p>
+		</div>
+	</div>
+</body>
+</html>
